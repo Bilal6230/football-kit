@@ -1,3 +1,41 @@
+# Project status — Phase 1A
+
+## Scope and implementation
+
+Created `feature/phase-1a-design-system` from `origin/feature/phase-0b-quality` at `fc1bcdf` after confirming PR #1 remains open and unmerged. The Phase 1A PR targets that same branch, not `main`.
+
+Implemented a temporary editorial design-system showcase at `/`: typography, seven semantic colours, interactive button samples, condition labels, spacing/surface examples and motion timings. Added Container, Button (primary/secondary/text), SectionHeading, Badge, ProductConditionBadge and Divider. Playfair Display and Inter use next/font; Tailwind maps semantic CSS variables. Motion is CSS-only with reduced-motion support. Only the button specimen requires client state. Design guidance is in [DESIGN_SYSTEM.md](DESIGN_SYSTEM.md).
+
+No Laravel, API, database, package manifest, lockfile or workflow changes. No storefront navigation, product inventory, cart, authentication or checkout. Existing strict TypeScript and Next lint rules remain active.
+
+## Verification — 2026-10-20
+
+| Command / check | Result |
+| --- | --- |
+| `npm run lint` (frontend) | Passed, zero warnings |
+| `npm run typecheck` (frontend) | Passed |
+| `npm run build` (frontend) | Passed from a clean .next directory; `/` and `/_not-found` statically prerendered |
+| `npm run start -- --hostname 127.0.0.1 --port 3000` | Production server served showcase successfully |
+| `node .local/verify-design.cjs` | Passed Chromium browser checks at 320, 390, 768 and 1440px; no horizontal overflow; zero axe WCAG 2 A/AA and 2.1 AA violations |
+| Same browser script | Passed Tab order, visible custom focus outline, Enter/Space activation, disabled button, reduced-motion animation/transition checks; no browser page errors |
+| Screenshots | Full-page captures at all four widths; mobile, tablet and desktop visually inspected for typography, colours, spacing and wrapping |
+| `git diff --check` | Passed |
+
+Browser tooling (playwright-core and @axe-core/playwright) was installed under ignored `.local/browser-tools`, outside application dependencies. Screenshots are `.local/showcase-{320,390,768,1440}.png`; browser script and images are local QA artifacts, not committed app dependencies. Review included server/client boundaries, direct component imports, native controls and heading order.
+
+The initial build passed compilation but reused stale baseline CSS. Browser inspection caught missing tokens/styles; moving the generated .next directory to ignored local storage and building clean resolved it. Early browser-harness attempts also needed an explicit browser context and normalization of computed whitespace/multiple transition values. Only the final completed checks above are counted as passing.
+
+## Limits and next step
+
+Chromium desktop emulation was verified; Safari/Firefox, physical devices and screen-reader testing were not run. Automated scans do not certify WCAG compliance. Fonts download at build time and require network access. Existing Phase 0B development-only audit findings and deferred ESLint accessibility plugin remain unchanged (history below); no dependency audit was rerun in this frontend-only phase. Backend tests/migrations were not rerun because backend files are unchanged.
+
+Existing Actions triggers cover PRs targeting main and pushes to main/Phase 0B only, so this stacked PR does not automatically run hosted CI. Local verification is recorded above; CI configuration was preserved. Review the Phase 1A pull request against Phase 0B, then approve the next phase separately. Do not merge or begin storefront work automatically.
+
+Changed files: `frontend/src/app/{globals.css,layout.tsx,page.tsx}`, `frontend/src/components/README.md`, six `frontend/src/components/ui/*.tsx` files, `frontend/src/components/design-system/button-specimen.tsx`, `docs/DESIGN_SYSTEM.md`, `docs/ARCHITECTURE.md`, and this status document.
+
+---
+
+# Historical verification — Phase 0B
 # Project status - Phase 0B
 
 ## Repository and scope

@@ -76,3 +76,7 @@ Checked during bootstrap on 2026-10-14:
 - [Laravel database configuration](https://laravel.com/docs/13.x/database)
 - [Official PHP Windows releases](https://www.php.net/downloads.php?os=windows)
 - [PostgreSQL Windows distributions](https://www.postgresql.org/download/windows/)
+
+## Phase 1A presentation foundation
+
+The temporary `/` route demonstrates the design system documented in [DESIGN_SYSTEM.md](DESIGN_SYSTEM.md). Semantic CSS variables map to Tailwind v4 utilities; reusable primitives live in `frontend/src/components/ui/`. The root layout self-hosts Inter and Playfair Display through `next/font/google`. Components use Server Components except the isolated button interaction specimen. CSS owns transitions, entrance timing and reduced-motion behavior; no motion or UI dependency was introduced. The showcase carries noindex metadata and must be replaced deliberately in a later storefront phase. Laravel, database schema, API contracts and lockfiles are unchanged.

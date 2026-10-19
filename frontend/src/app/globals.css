@@ -1,8 +1,78 @@
-@import "tailwindcss";
+﻿@import "tailwindcss";
 
-body {
-  margin: 0;
-  background: #fafafa;
-  color: #171717;
-  font-family: Arial, Helvetica, sans-serif;
+:root {
+  --background: #f7f4ee;
+  --surface: #ffffff;
+  --foreground: #181818;
+  --muted: #6b6b6b;
+  --line: #e7e1d8;
+  --accent: #55624c;
+  --charcoal: #252923;
+  --accent-soft: #e9ede5;
+  --focus: #55624c;
+  --space-unit: 0.25rem;
+  --content-width: 80rem;
+  --page-gutter: clamp(1.25rem, 5vw, 5rem);
+  --section-space: clamp(2.5rem, 6vw, 5rem);
+  --radius-control: 0.125rem;
+  --shadow-surface: 0 8px 24px rgb(24 24 24 / 4%);
+  --duration-hover: 200ms;
+  --duration-card: 300ms;
+  --duration-section: 550ms;
+  --duration-hero: 750ms;
+  --stagger-step: 70ms;
+  --ease-refined: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-accent: var(--accent);
+  --color-charcoal: var(--charcoal);
+  --color-accent-soft: var(--accent-soft);
+  --font-sans: var(--font-inter), Arial, sans-serif;
+  --font-display: var(--font-playfair), Georgia, serif;
+  --text-heading: clamp(1.75rem, 3vw, 2.5rem);
+  --text-display: clamp(3.25rem, 7.5vw, 7rem);
+  --spacing: var(--space-unit);
+}
+
+@layer base {
+  body { margin: 0; background: var(--background); color: var(--foreground); font-family: var(--font-inter), Arial, sans-serif; line-height: 1.6; }
+  ::selection { background: var(--accent); color: var(--surface); }
+  :focus-visible { outline: 2px solid var(--focus); outline-offset: 5px; }
+  button { font: inherit; }
+}
+
+@layer components {
+  .site-container { width: 100%; max-width: var(--content-width); margin-inline: auto; padding-inline: var(--page-gutter); }
+  .eyebrow { font-size: 0.6875rem; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; }
+  .specimen-section { padding-block: var(--section-space); }
+  .button { display: inline-flex; min-height: 3rem; align-items: center; justify-content: center; gap: 1.5rem; padding: 0.75rem 1.5rem; border: 1px solid transparent; border-radius: var(--radius-control); font-size: 0.8125rem; font-weight: 500; cursor: pointer; transition: transform var(--duration-hover) var(--ease-refined), background-color var(--duration-hover) ease, color var(--duration-hover) ease; }
+  .button--primary { background: var(--accent); color: var(--surface); }
+  .button--secondary { border-color: var(--accent); color: var(--accent); background: transparent; }
+  .button--text { padding-inline: 0.25rem; color: var(--foreground); text-decoration: underline; text-underline-offset: 0.35em; }
+  .button:disabled { opacity: 0.45; cursor: not-allowed; }
+  .button:active:not(:disabled) { transform: translateY(1px); }
+  .badge { display: inline-flex; align-items: center; padding: 0.375rem 0.75rem; border: 1px solid var(--line); border-radius: var(--radius-control); font-size: 0.75rem; font-weight: 500; line-height: 1.5; }
+  .badge--neutral { background: var(--background); color: var(--foreground); }
+  .badge--olive { background: var(--accent-soft); color: var(--accent); border-color: transparent; }
+  .badge--dark { background: var(--charcoal); color: var(--surface); border-color: transparent; }
+  .surface-panel { background: var(--surface); border: 1px solid var(--line); box-shadow: var(--shadow-surface); }
+  .entrance { animation: enter var(--duration-section) var(--ease-refined) both; animation-delay: calc(var(--stagger-index, 0) * var(--stagger-step)); }
+}
+
+@media (hover: hover) {
+  .button--primary:hover:not(:disabled) { background: var(--charcoal); transform: translateY(-2px); }
+  .button--secondary:hover:not(:disabled) { background: var(--accent-soft); transform: translateY(-2px); }
+  .button--text:hover:not(:disabled) { color: var(--accent); }
+}
+@keyframes enter { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+@media (prefers-reduced-motion: reduce) {
+  :root { --duration-hover: 0ms; --duration-card: 0ms; --duration-section: 0ms; --duration-hero: 0ms; --stagger-step: 0ms; }
+  .entrance { animation: none; }
+  .button:hover:not(:disabled), .button:active:not(:disabled) { transform: none; }
 }
