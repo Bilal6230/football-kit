@@ -1,87 +1,72 @@
-# Project status — Phase 0A
+# Project status - Phase 0B
 
-## Scope
+## Repository and scope
 
-Bootstrap only. One repository contains Next.js frontend, Laravel API, documentation and an optional Windows tool activation script. No storefront, products, checkout, payments or authentication have been implemented. No subsequent phase is authorized.
+Repository: `Bilal6230/football-kit`. Reviewed the clean `main` branch at `898ee75` before making changes; it matched `origin/main`. Work is on `feature/phase-0b-quality`. Phase 0A remains functional. No storefront design, authentication, products, checkout or payments were added. Do not begin the next phase or merge automatically.
 
-## Implemented
+## Changes
 
-- Next.js App Router with `src/`, strict TypeScript, Tailwind CSS and supported ESLint rules. Minimal placeholder page, root layout and documented component/utility/feature locations.
-- Versioned `GET /api/v1/health`, JSON success/error envelopes, generic errors, explicit-origin CORS and safe environment examples.
-- PostgreSQL configuration and Laravel's unmodified infrastructure migrations; no business-domain migrations.
-- PHPUnit coverage for health, missing routes, wrong methods, server-error redaction and allowed/denied/preflight CORS.
-- Root setup instructions and architecture decisions, ignored secrets/artifacts, npm/Composer lockfiles, no nested application Git repositories.
+- API error normalization now includes stable `error.code`, preserves existing status/message fields, and returns validator messages in `error.fields` for Laravel validation exceptions only. Unexpected exceptions remain generic even with debug enabled. HTTP headers survive normalization.
+- Focused regression coverage increased from 10 tests / 23 assertions to 20 tests / 55 assertions: validation with nested field names and different Accept/debug settings, 404, 405, 422, 500, Retry-After and CORS including denied preflight and singleton origin behavior. All test-only routes stay inside tests.
+- Added standalone Next.js Core Web Vitals rules compatible with ESLint 10. Added TypeScript unchecked-index and switch-fallthrough checks. The production UI and application code are unchanged.
+- Added `.github/workflows/quality.yml`: separate frontend and backend jobs, read-only permissions, pinned action commits, lockfile installs, an isolated PostgreSQL 18 service, migrations, Pint and PHPUnit. No deployment or merge automation.
+- Updated README and architecture/error/CI documentation. Composer lockfile and all migrations are unchanged. Existing npm package versions are unchanged; only the Next lint plugin and its dependencies were added.
 
-## Versions
+## Verified versions
 
-| Component | Version |
+Node 24.15.0; npm 11.12.1; Next.js 16.4.0; React 19.3.0; TypeScript 5.9.3; Tailwind 4.3.3; ESLint 10.12.0; Next ESLint plugin 16.4.0; PHP 8.4.26; Composer 2.8.6; Laravel 13.36.0; PHPUnit 12.5.39; PostgreSQL 18.6. Runtime/framework versions were not upgraded.
+
+## Local verification - 2026-10-20 (Asia/Karachi)
+
+| Exact command/check | Result |
 | --- | --- |
-| OS | Windows 11 Pro, 10.0.26200 |
-| Node.js / npm | 24.15.0 / 11.12.1 |
-| Next.js / React | 16.4.0 / 19.3.0 |
-| TypeScript / Tailwind CSS | 5.9.3 / 4.3.3 |
-| ESLint | 10.12.0 |
-| PHP | 8.4.26 portable; original system PHP 8.3.0 left untouched |
-| Composer | 2.8.6 |
-| Laravel | 13.36.0 |
-| PHPUnit | 12.5.39 |
-| PostgreSQL | 18.6 |
-| Git | 2.49.0.windows.1 |
-
-Exact transitive versions are in the lockfiles.
-
-## Verification (2026-10-14)
-
-| Executed check | Result |
-| --- | --- |
-| `npm ci --no-fund` | Passed; 176 packages installed from final lockfile |
-| `npm run lint` | Passed; zero warnings |
-| `npm run typecheck` | Passed; Next route type generation and `tsc --noEmit` |
-| `npm run build` | Passed; `/` and `/_not-found` prerendered |
-| `npm audit --audit-level=low` | Passed; zero vulnerabilities |
-| `npm run start -- --hostname 127.0.0.1` and HTTP request | Passed; HTTP 200 and expected placeholder content |
-| `composer install --no-interaction --prefer-dist` | Passed; lockfile install, autoload generation and package discovery |
+| `git fetch origin` / `git rev-list --left-right --count HEAD...origin/main` before branching | Clean baseline; 0 ahead / 0 behind |
+| Baseline `php artisan test --colors=never` | 10 tests / 23 assertions passed |
+| Final `php artisan test --colors=never` | 20 tests / 55 assertions passed |
+| `php vendor/bin/pint` / `composer lint` | Passed |
 | `composer validate --strict` | Passed |
-| `composer check-platform-reqs` | Passed on PHP 8.4.26 |
-| `composer audit --format=plain` | Passed; no vulnerability advisories |
-| `php artisan key:generate` | Passed; generated key exists only in ignored `.env` |
-| `php artisan migrate --no-interaction` | Passed; all three initial migrations executed against PostgreSQL |
-| `php artisan migrate:status` | Passed; all three show batch 1 / Ran |
-| `psql` connection/schema/role queries | Passed; application role connected, nine framework tables, no superuser/CREATEDB/CREATEROLE privileges |
-| `php artisan test --colors=never` | Passed; 10 tests, 23 assertions |
-| `php vendor/bin/pint --test` | Passed after formatting corrections |
-| `php artisan route:list --path=api` | Passed; one API route, GET/HEAD `/api/v1/health` |
-| `php artisan serve --host=127.0.0.1 --port=8000` and HTTP checks | Passed; health 200 JSON, missing route 404 JSON, allowed preflight 204, unlisted origin without CORS allowance |
-| `git diff --cached --check` | Passed; no whitespace errors |
-| Git secret/artifact checks | Passed; generated app/admin passwords and app key absent from staged diff; local env files/tooling/dependencies ignored; examples trackable |
+| `composer audit --format=json` | No advisories or abandoned packages |
+| `npm install --save-dev --save-exact @next/eslint-plugin-next@16.4.0 --strict-peer-deps --no-fund` | Installed without peer overrides/conflicts; audit findings below |
+| `npm ci --strict-peer-deps --no-fund` | Clean lockfile install passed (195 packages); audit findings below |
+| `npm ls --all --json` | No invalid or missing dependencies |
+| `npm run lint` | Passed, zero warnings |
+| `npm run typecheck` | Passed, route type generation and `tsc --noEmit` |
+| `npm run build` | Passed, static `/` and `/_not-found` |
+| In-memory ESLint `lintText` probe | Confirmed `@next/next/no-img-element` detects a raw image element; no source fixture retained |
+| `npm audit --json` | Exit 1: four high findings in the development lint dependency chain |
+| `npm audit --omit=dev --json` | Passed: zero production dependency findings |
+| `pg_ctl -D .local/pgdata -l .local/postgres.log -w start` | Existing cluster started; automatic recovery completed |
+| `php artisan migrate --no-interaction` | Passed: nothing to migrate |
+| `php artisan migrate:status` | All three initial migrations remain applied, batch 1 |
+| `php artisan serve --host=127.0.0.1 --port=8000` and `curl.exe --silent --show-error --fail-with-body -i http://127.0.0.1:8000/api/v1/health` | HTTP 200, unchanged `{"data":{"status":"ok"}}` |
+| HTTP OPTIONS from an unlisted origin | HTTP 204 without Access-Control-Allow-Origin |
+| Lockfile comparison against `main` | No previously installed package versions changed |
+| `git diff --check` | Passed |
 
-All Phase 0A acceptance checks passed. No unresolved environment blocker remains. Verification web servers were stopped to free ports 3000/8000; the local PostgreSQL cluster remains running. No browser automation or deployment was executed, and neither is claimed as verified. No Git commit or remote push was created; project files are staged on `main` for review.
+The initial migration check failed because the local PostgreSQL process was stopped; it passed after starting the existing cluster. One local lint run overlapped clean dependency installation and failed on a temporarily missing package file; the final checks above ran after installation completed and all passed. These initial failures are not counted as passes.
+
+## Audit findings and compatibility limits
+
+The baseline npm and Composer audits were clean. Adding the version-matched Next lint plugin introduces four high findings along one **development-only** chain: `@next/eslint-plugin-next -> fast-glob -> micromatch -> braces`. The underlying advisory is [GHSA-vfj7-8cjw-p6xm / CVE-2026-93687](https://github.com/advisories/GHSA-vfj7-8cjw-p6xm): deeply nested brace patterns can exhaust the stack. The advisory lists no patched release; the registry's latest braces is 3.0.3. Next lint plugin 16.4.2 still depends on the same fast-glob version. npm's suggested fix downgrades the plugin to 14.2.35, so no force-fix, unrelated upgrade or dependency override was applied. This remains a review risk for development/CI tooling; production-only audit is clean. Current lint configuration uses repository-owned patterns, not runtime user input. Update the lint chain when a compatible patch is available.
+
+`eslint-plugin-jsx-a11y` latest 6.10.2 declares support only through ESLint 9. Dedicated accessibility lint checks could not be added without a peer conflict, so they remain deferred. No forced install, duplicate ESLint major or custom accessibility-rule abstraction was introduced. Manual accessibility review is still needed for future UI work.
+
+## Remote verification and handoff
+
+Committed and pushed implementation commit `c2e456e` to `feature/phase-0b-quality`. [Pull request #1](https://github.com/Bilal6230/football-kit/pull/1) is open against `main` and has not been merged. [Hosted Actions run 39310978139](https://github.com/Bilal6230/football-kit/actions/runs/39310978139) passed both frontend and backend jobs, including clean Linux installs, build, PostgreSQL migrations, Pint and PHPUnit. This documentation-only handoff update follows that verified implementation commit. The local HTTP verification server was stopped; PostgreSQL remains running. Generated secrets were checked against the staged diff and were absent. Browser automation, production deployment and production optimized Composer packaging were not run; no changes in this phase require them.
 
 ## Changed files
 
-All 78 repository files are new. Main implementation/configuration files:
+- `.github/workflows/quality.yml`
+- `backend/bootstrap/app.php`
+- `backend/tests/Feature/ApiErrorTest.php`
+- `backend/tests/Feature/HealthTest.php`
+- `frontend/eslint.config.mjs`
+- `frontend/tsconfig.json`
+- `frontend/package.json`
+- `frontend/package-lock.json`
+- `README.md`
+- `docs/ARCHITECTURE.md`
+- `docs/PROJECT_STATUS.md`
 
-- Root `.gitignore`, `.gitattributes`, `.editorconfig`, `README.md` and `scripts/use-local-tools.ps1`.
-- Frontend `package.json`, `package-lock.json`, `tsconfig.json`, `next.config.ts`, `eslint.config.mjs`, `.env.example`, `.nvmrc`, `src/app/{layout.tsx,page.tsx,globals.css}` and source-directory READMEs, plus generated framework scaffolding.
-- Backend `composer.json`, `composer.lock`, `.env.example`, `bootstrap/app.php`, `routes/api.php`, `app/Http/Controllers/Api/V1/HealthController.php`, `config/{database.php,cors.php}`, `phpunit.xml`, `tests/Feature/{HealthTest.php,ExampleTest.php}`, and standard Laravel scaffolding/migrations.
-- `docs/ARCHITECTURE.md` and this status document.
-
-`git diff --cached --name-only` lists the complete reviewable file inventory.
-
-## Environment work and resolved issues
-
-- Initial PostgreSQL tools/service were missing; downloaded official EDB PostgreSQL Windows binaries into ignored `.local/`. Server components are installed; optional pgAdmin/StackBuilder extraction was stopped because they are not needed.
-- Initial PHP 8.3.0 emitted missing-Imagick warnings and lacked the PostgreSQL PDO extension. Installed PHP 8.4.26 under `.local/php`, checked its official SHA-256 digest and enabled required extensions. Global PHP configuration and PATH were not changed.
-- Initialized an isolated loopback-only PostgreSQL cluster with SCRAM passwords and a non-superuser application role. Real credentials exist only in ignored local files.
-- Slow downloads caused timeouts during PostgreSQL and Composer installation. Downloads were retried/resumed; completed official archives were reused.
-- Optimized Composer autoload generation was stopped after an unusually slow filesystem scan. Standard development autoloading completed successfully; production optimization is documented as a separate packaging flag and was not verified.
-- Initial API tests caught missing default middleware registration; restored `withMiddleware()`. A CORS assertion was corrected to test the actual two-origin allowlist, since a singleton allowlist returns a fixed allowed-origin header. The final suite and live HTTP CORS checks pass.
-- The generator selected unsupported ESLint 9. Upgrading exposed older peer constraints and a vulnerable glob dependency in the generated Next lint bundle. Replaced the bundle with compatible JavaScript, TypeScript and React Hooks recommended rules; npm installation now reports zero vulnerabilities. No force-fix or unsupported peer override is retained.
-
-## Limitations and next task
-
-- Local development foundation only; no deployment, production infrastructure, browser automation or commerce flow testing is included.
-- The static frontend deliberately does not call the API. Health means application liveness, not database readiness.
-- Local tool binaries, data and credentials are not in Git. Fresh machines must follow the README prerequisites/provisioning instructions.
-- Next-specific, legacy React and accessibility lint rules are deferred until compatible supported plugins are available; semantic markup was reviewed manually.
-- Recommended next step: review and approve the Phase 0B brief, including catalogue/listing, boot sizing, condition and stock rules before any domain schema or storefront work. Phase 0B has not begun.
+Local tools, credentials, logs and audit output remain under ignored paths. Next step: review the Phase 0B pull request, especially the development-only audit tradeoff and deferred accessibility plugin. No later phase is started.
