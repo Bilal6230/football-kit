@@ -1,0 +1,82 @@
+name: Quality
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main, feature/phase-0b-quality]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: quality-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  frontend:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm run build
+
+  backend:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: backend
+    services:
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_DB: football_boots_store_test
+          POSTGRES_USER: football_boots_test
+          # Disposable CI service credential; never used outside this job.
+          POSTGRES_PASSWORD: ci-only-password
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U football_boots_test -d football_boots_store_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      APP_ENV: testing
+      APP_DEBUG: 'false'
+      DB_CONNECTION: pgsql
+      DB_HOST: 127.0.0.1
+      DB_PORT: '5432'
+      DB_DATABASE: football_boots_store_test
+      DB_USERNAME: football_boots_test
+      DB_PASSWORD: ci-only-password
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - uses: shivammathur/setup-php@d52fc211a0436f8839a587b3b5b8efddab4744ea # v2
+        with:
+          php-version: '8.4'
+          extensions: mbstring, pdo_pgsql, dom, xml, xmlwriter, curl, fileinfo
+          tools: composer:v2
+          coverage: none
+      - run: composer validate --strict
+      - run: composer install --no-interaction --prefer-dist --no-progress
+      - name: Prepare isolated test environment
+        run: |
+          cp .env.example .env
+          php artisan key:generate
+      - run: php artisan migrate --no-interaction
+      - run: php artisan migrate:status
+      - run: composer lint
+      - run: composer test
