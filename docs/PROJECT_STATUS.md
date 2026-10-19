@@ -1,4 +1,4 @@
-﻿# Project status - Phase 0B
+# Project status - Phase 0B
 
 ## Repository and scope
 
@@ -53,7 +53,7 @@ The baseline npm and Composer audits were clean. Adding the version-matched Next
 
 ## Remote verification and handoff
 
-GitHub repository access confirms push permission. Remote workflow results and the PR link will be recorded after the feature branch is pushed. Local results above do not imply a hosted Actions pass. Browser automation, production deployment and production optimized Composer packaging were not run; no changes in this phase require them.
+Committed and pushed implementation commit `c2e456e` to `feature/phase-0b-quality`. [Pull request #1](https://github.com/Bilal6230/football-kit/pull/1) is open against `main` and has not been merged. [Hosted Actions run 39310978139](https://github.com/Bilal6230/football-kit/actions/runs/39310978139) passed both frontend and backend jobs, including clean Linux installs, build, PostgreSQL migrations, Pint and PHPUnit. This documentation-only handoff update follows that verified implementation commit. The local HTTP verification server was stopped; PostgreSQL remains running. Generated secrets were checked against the staged diff and were absent. Browser automation, production deployment and production optimized Composer packaging were not run; no changes in this phase require them.
 
 ## Changed files
 
