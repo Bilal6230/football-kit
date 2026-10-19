@@ -1,0 +1,14 @@
+.local/
+**/.env
+**/.env.*
+!**/.env.example
+**/node_modules/
+**/vendor/
+**/.next/
+**/coverage/
+**/*.log
+**/*.tsbuildinfo
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
