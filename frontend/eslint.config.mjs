@@ -1,4 +1,5 @@
 import js from "@eslint/js";
+import nextPlugin from "@next/eslint-plugin-next";
 import { defineConfig, globalIgnores } from "eslint/config";
 import reactHooks from "eslint-plugin-react-hooks";
 import tseslint from "typescript-eslint";
@@ -9,6 +10,9 @@ export default defineConfig([
   tseslint.configs.recommended,
   {
     files: ["**/*.{ts,tsx}"],
-    extends: [reactHooks.configs.flat.recommended],
+    extends: [reactHooks.configs.flat.recommended, nextPlugin.configs["core-web-vitals"]],
+    settings: {
+      next: { rootDir: import.meta.dirname },
+    },
   },
 ]);

@@ -1,6 +1,6 @@
 # Football Boots Store
 
-Phase 0A foundation for a Pakistan-based store selling original imported pre-owned football boots. No storefront, catalogue, checkout, payments or authentication is implemented.
+Phase 0A bootstrap and Phase 0B engineering foundation for a Pakistan-based store selling original imported pre-owned football boots. No storefront, catalogue, checkout, payments or authentication is implemented.
 
 ## Requirements
 
@@ -85,7 +85,7 @@ Expected HTTP 200: `{"data":{"status":"ok"}}`. This is a liveness check, not a d
 
 CORS reads `CORS_ALLOWED_ORIGINS` as a comma-separated exact allowlist. The example permits only `http://localhost:3000` and `http://127.0.0.1:3000`, with GET/OPTIONS and no credentials. An unset allowlist allows no cross-origin requests. Deployed APIs must explicitly list their HTTPS frontend origins; do not use wildcards. Authentication and credentialed CORS are deferred.
 
-`APP_DEBUG=false` is the safe default, including the local example. API errors return a generic JSON envelope and never expose exception details. Diagnostics remain in ignored `backend/storage/logs/laravel.log`. Production must use `APP_ENV=production`, `APP_DEBUG=false`, a unique app key, protected logs and deployment-managed secrets. Development servers are for local use only.
+`APP_DEBUG=false` is the safe default, including the local example. API errors return stable error codes and generic messages; validation failures additionally preserve client-safe field messages. Exception details and submitted input are never echoed. See the [error contract](docs/ARCHITECTURE.md#api-error-contract-phase-0b). Diagnostics remain in ignored `backend/storage/logs/laravel.log`. Production must use `APP_ENV=production`, `APP_DEBUG=false`, a unique app key, protected logs and deployment-managed secrets. Development servers are for local use only.
 
 ## Checks
 
@@ -128,4 +128,4 @@ The app password is in ignored `backend/.env`. A separate administrator password
 
 See [project status](docs/PROJECT_STATUS.md) for local PostgreSQL installation and verification results. On fresh checkouts, install the prerequisites above: `.local/` and credentials are deliberately absent. Do not overwrite a configured `.env` with its example.
 
-See [architecture](docs/ARCHITECTURE.md). Stop at Phase 0A; subsequent phases require approval.
+See [architecture](docs/ARCHITECTURE.md) and [current verification/audit findings](docs/PROJECT_STATUS.md). Stop at Phase 0B; subsequent phases require approval.
